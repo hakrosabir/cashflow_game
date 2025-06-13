@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digital Cashflow Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(to bottom, #ece9e6, #ffffff);
+      color: #333;
+      padding: 10px;
+    }
+    #game-board {
+      width: 100%;
+      max-width: 600px;
+      height: 600px;
+      background: radial-gradient(circle at center, #8a2be2, #4b0082);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 6px solid #222;
+      border-radius: 20px;
+      margin: 0 auto 20px auto;
+    }
+    .player-token {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      position: absolute;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #fff;
+      border: 3px solid #fff;
+      transition: all 0.4s ease;
+      font-size: 0.9em;
+    }
+    #control-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px;
+    }
+    .dashboard {
+      width: 100%;
+      max-width: 600px;
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .dashboard h3 {
+      margin-bottom: 15px;
+      color: #5a2fa0;
+    }
+    #log {
+      height: 100px;
+      overflow-y: auto;
+      background: #f3f3f3;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      border: 1px solid #ddd;
+    }
+    #roll-dice-btn {
+      padding: 12px 25px;
+      font-size: 16px;
+      background: #4caf50;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    #roll-dice-btn:hover {
+      background: #43a047;
+    }
+    .dice-roll {
+      font-size: 18px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    @media (max-width: 768px) {
+      #game-board {
+        height: 400px;
+      }
+      .player-token {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75em;
+      }
+      .dashboard {
+        padding: 15px;
+      }
+      #roll-dice-btn {
+        font-size: 14px;
+        padding: 10px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-board">
+    <div class="player-token" id="player1" style="background: #ff3b3f; top: 50px; left: 50px;">P1</div>
+    <div class="player-token" id="player2" style="background: #3b9eff; top: 50px; left: 120px;">P2</div>
+  </div>
+  <div id="control-panel">
+    <div class="dashboard">
+      <h3>Game Control</h3>
+      <p id="player-turn">Turn: Player 1</p>
+      <button id="roll-dice-btn">🎲 Roll Dice</button>
+      <p class="dice-roll" id="dice-result">Result: -</p>
+      <div id="log"></div>
+    </div>
+    <div class="dashboard">
+      <h3>Player 1 Summary</h3>
+      <p>💵 Income: <strong>$3,000</strong></p>
+      <p>💸 Expenses: <strong>$1,500</strong></p>
+      <p>🏠 Assets: <strong>$5,000</strong></p>
+      <p>📉 Liabilities: <strong>$2,000</strong></p>
+    </div>
+  </div>
+
+  <script>
+    const players = [
+      { id: 'player1', name: 'Player 1', position: 0 },
+      { id: 'player2', name: 'Player 2', position: 0 }
+    ];
+    let currentPlayer = 0;
+    const totalPositions = 24;
+
+    function rollDice() {
+      return Math.floor(Math.random() * 6) + 1;
+    }
+
+    function movePlayer(playerIndex, steps) {
+      const player = players[playerIndex];
+      player.position = (player.position + steps) % totalPositions;
+      const angle = (360 / totalPositions) * player.position;
+      const centerX = 300, centerY = 300, radius = 200;
+      const x = centerX + radius * Math.cos((angle * Math.PI) / 180);
+      const y = centerY + radius * Math.sin((angle * Math.PI) / 180);
+
+      $(`#${player.id}`).css({ left: `${x}px`, top: `${y}px` });
+
+      $('#log').append(`<div>${player.name} moved ${steps} steps to position ${player.position}</div>`);
+      $('#log').scrollTop($('#log')[0].scrollHeight);
+    }
+
+    $('#roll-dice-btn').click(() => {
+      const steps = rollDice();
+      $('#dice-result').text(`Result: 🎲 ${steps}`);
+      movePlayer(currentPlayer, steps);
+      currentPlayer = (currentPlayer + 1) % players.length;
+      $('#player-turn').text(`Turn: ${players[currentPlayer].name}`);
+    });
+  </script>
+</body>
+</html>
